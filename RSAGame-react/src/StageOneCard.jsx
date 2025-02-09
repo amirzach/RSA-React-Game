@@ -4,115 +4,127 @@ import { IconBulb } from '@tabler/icons-react';
 import { isPrime, generatePandQValues, generateKeyPair } from "./helper";
 
 function StageOneCard(props) {
-
   const {
-    setDifficultySelected, 
-    setStageTwo, 
-    setButtonPValueStatus, 
-    setButtonsPValueDisabled, 
-    setSelectedPrimeP, 
-    setSelectedNotPrimeP, 
-    setPossiblePValues, 
-    setButtonQValueStatus, 
-    setButtonsQValueDisabled, 
-    setSelectedPrimeQ, 
-    setSelectedNotPrimeQ, 
-    setPossibleQValues, 
-    setIsBothPrimeSelected, 
-    setNValue, 
-    setPhiValue, 
-    setValidEs, 
-    setKeyMap,
     difficultySelected,
     possiblePValues,
+    possibleQValues,
     selectedPrimeP,
     selectedNotPrimeP,
-    possibleQValues,
     selectedPrimeQ,
     selectedNotPrimeQ,
     isBothPrimeSelected,
     buttonPValueStatus,
     buttonsPValueDisabled,
     buttonQValueStatus,
-    buttonsQValueDisabled
+    buttonsQValueDisabled,
+    setGameState,
+    setPrimeState,
+    setCalculatedValues,
   } = props;
 
   // Handle onClick for p value buttons
   function handleButtonPValueClick(value) {
-
     if (isPrime(value)) {
-
-      setButtonPValueStatus({[value]: "green"});
-      setButtonsPValueDisabled(true);
-      setSelectedPrimeP(value);
-      setSelectedNotPrimeP(false);
+      // Update primeState: mark the clicked p value as "green", disable further clicks, and store the selection
+      setPrimeState((prev) => ({
+        ...prev,
+        buttonPValueStatus: { [value]: "green" },
+        buttonsPValueDisabled: true,
+        selectedPrimeP: value,
+        selectedNotPrimeP: false,
+      }));
       checkBothPrimeSelected(value, selectedPrimeQ);
     } else {
-
-      setSelectedNotPrimeP(true);
+      // Flag the error and regenerate p values if the selection is not prime
+      setPrimeState((prev) => ({
+        ...prev,
+        selectedNotPrimeP: true,
+      }));
       regeneratePValues();
     }
   }
 
   // Handle onClick for q value buttons
   function handleButtonQValueClick(value) {
-
     if (isPrime(value)) {
-
-      setButtonQValueStatus({[value]: "green"});
-      setButtonsQValueDisabled(true);
-      setSelectedPrimeQ(value);
-      setSelectedNotPrimeQ(false);
+      // Update primeState: mark the clicked q value as "green", disable further clicks, and store the selection
+      setPrimeState((prev) => ({
+        ...prev,
+        buttonQValueStatus: { [value]: "green" },
+        buttonsQValueDisabled: true,
+        selectedPrimeQ: value,
+        selectedNotPrimeQ: false,
+      }));
       checkBothPrimeSelected(selectedPrimeP, value);
     } else {
-
-      setSelectedNotPrimeQ(true);
+      // Flag the error and regenerate q values if the selection is not prime
+      setPrimeState((prev) => ({
+        ...prev,
+        selectedNotPrimeQ: true,
+      }));
       regenerateQValues();
     }
   }
 
   // Check if both p and q are prime numbers
   function checkBothPrimeSelected(p, q) {
-
     if (p && q) {
-      setIsBothPrimeSelected(true);
+      setPrimeState((prev) => ({
+        ...prev,
+        isBothPrimeSelected: true,
+      }));
     }
   }
 
-  // Regenerate p values
+  // Regenerate possible p values based on the current bounds
   function regeneratePValues() {
 
     let lowerBound = possiblePValues[0] >= 1000 ? 1000 : possiblePValues[0] >= 100 ? 100 : 1;
     let upperBound = lowerBound === 1 ? 100 : lowerBound * 10;
     const { generatedPValues } = generatePandQValues(lowerBound, upperBound);
-    setPossiblePValues(generatedPValues);
-    setButtonPValueStatus({});
-    setButtonsPValueDisabled(false);
+    setPrimeState((prev) => ({
+      ...prev,
+      possiblePValues: generatedPValues,
+      buttonPValueStatus: {},
+      buttonsPValueDisabled: false,
+    }));
   }
 
-  // Regenerate q values
+  // Regenerate possible q values based on the current bounds
   function regenerateQValues() {
 
     let lowerBound = possibleQValues[0] >= 1000 ? 1000 : possibleQValues[0] >= 100 ? 100 : 1;
     let upperBound = lowerBound === 1 ? 100 : lowerBound * 10;
     const { generatedQValues } = generatePandQValues(lowerBound, upperBound);
-    setPossibleQValues(generatedQValues);
-    setButtonQValueStatus({});
-    setButtonsQValueDisabled(false);
+    setPrimeState((prev) => ({
+      ...prev,
+      possibleQValues: generatedQValues,
+      buttonQValueStatus: {},
+      buttonsQValueDisabled: false,
+    }));
   }
 
     // Function to load Stage 2
   function proceedStageTwo() {
-
     const {
       n, phi, validEs, keyMap
     } = generateKeyPair(selectedPrimeP, selectedPrimeQ);
-    setDifficultySelected(false);
-    setStageTwo(true);
-    setNValue(n);
-    setPhiValue(phi);
-    setValidEs(validEs.map((e) => e.toString()));
-    setKeyMap(keyMap);
+
+    // Update the gameState: disable difficulty selection and move to Stage Two.
+    setGameState((prev) => ({
+      ...prev,
+      difficultySelected: false,
+      stageTwo: true,
+    }));
+    
+    // Update calculatedValues with RSA parameters.
+    setCalculatedValues((prev) => ({
+      ...prev,
+      nValue: n,
+      phiValue: phi,
+      validEs: validEs.map((e) => e.toString()),
+      keyMap: keyMap,
+    }));
   }
     
   return (
@@ -173,28 +185,11 @@ function StageOneCard(props) {
 
 // Define PropTypes
 StageOneCard.propTypes = {
-  setDifficultySelected: PropTypes.func.isRequired,
-  setStageTwo: PropTypes.func.isRequired,
-  setButtonPValueStatus: PropTypes.func.isRequired,
-  setButtonsPValueDisabled: PropTypes.func.isRequired,
-  setSelectedPrimeP: PropTypes.func.isRequired,
-  setSelectedNotPrimeP: PropTypes.func.isRequired, 
-  setPossiblePValues: PropTypes.func.isRequired, 
-  setButtonQValueStatus: PropTypes.func.isRequired, 
-  setButtonsQValueDisabled: PropTypes.func.isRequired, 
-  setSelectedPrimeQ: PropTypes.func.isRequired, 
-  setSelectedNotPrimeQ: PropTypes.func.isRequired, 
-  setPossibleQValues: PropTypes.func.isRequired, 
-  setIsBothPrimeSelected: PropTypes.func.isRequired, 
-  setNValue: PropTypes.func.isRequired, 
-  setPhiValue: PropTypes.func.isRequired, 
-  setValidEs: PropTypes.func.isRequired, 
-  setKeyMap: PropTypes.func.isRequired,
   difficultySelected: PropTypes.bool.isRequired,
-  possiblePValues: PropTypes.array.isRequired,
+  possiblePValues: PropTypes.arrayOf(PropTypes.number).isRequired,
+  possibleQValues: PropTypes.arrayOf(PropTypes.number).isRequired,
   selectedPrimeP: PropTypes.number,
   selectedNotPrimeP: PropTypes.bool.isRequired,
-  possibleQValues: PropTypes.array.isRequired,
   selectedPrimeQ: PropTypes.number,
   selectedNotPrimeQ: PropTypes.bool.isRequired,
   isBothPrimeSelected: PropTypes.bool.isRequired,
@@ -202,6 +197,9 @@ StageOneCard.propTypes = {
   buttonsPValueDisabled: PropTypes.bool.isRequired,
   buttonQValueStatus: PropTypes.object.isRequired,
   buttonsQValueDisabled: PropTypes.bool.isRequired,
+  setGameState: PropTypes.func.isRequired,
+  setPrimeState: PropTypes.func.isRequired,
+  setCalculatedValues: PropTypes.func.isRequired,
 }    
 
 export default StageOneCard

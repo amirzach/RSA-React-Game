@@ -6,14 +6,12 @@ import { generatePandQValues } from "./helper";
 function SelectDifficultyCard(props) {
 
   const {
-    setDifficultySelected, 
-    setPossiblePValues, 
-    setPossibleQValues, 
     difficultySelected, 
     stageTwo, 
     stageThree, 
     stageFour,
-    onDifficultySelect
+    onDifficultySelect,
+    setPrimeState,
   } = props;
   // Function to handle selection of difficulty level
   function handleDifficulty(difficulty) {
@@ -41,9 +39,11 @@ function SelectDifficultyCard(props) {
     } = generatePandQValues(lowerBound, upperBound);
 
     // Update state variables
-    setPossiblePValues(generatedPValues);
-    setPossibleQValues(generatedQValues);
-    setDifficultySelected(true);
+    setPrimeState(prev => ({
+      ...prev,
+      possiblePValues: generatedPValues,
+      possibleQValues: generatedQValues
+    }));
     onDifficultySelect(difficulty);
   }
     
@@ -69,14 +69,12 @@ function SelectDifficultyCard(props) {
 
 // Define PropTypes
 SelectDifficultyCard.propTypes = {
-  setDifficultySelected: PropTypes.func.isRequired,
-  setPossiblePValues: PropTypes.func.isRequired,
-  setPossibleQValues: PropTypes.func.isRequired,
   difficultySelected: PropTypes.bool.isRequired,
   stageTwo: PropTypes.bool.isRequired,
   stageThree: PropTypes.bool.isRequired,
   stageFour: PropTypes.bool.isRequired,
   onDifficultySelect: PropTypes.func.isRequired,
+  setPrimeState: PropTypes.func.isRequired,
 }
 
 export default SelectDifficultyCard

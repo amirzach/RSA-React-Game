@@ -5,11 +5,7 @@ import { IconBulb, IconHelp } from '@tabler/icons-react';
 import { modExp } from "./helper";
 
 function StageFourCard(props) {
-
   const {
-    setIsInputDCorrect,
-    setInputD,
-    setDecryptedMessage,
     stageFour,
     nValue,
     phiValue,
@@ -19,16 +15,19 @@ function StageFourCard(props) {
     isInputDCorrect,
     encryptedMessage,
     decryptedMessage,
-    onComplete 
+    onComplete,
+    setMessageState,
   } = props;
 
   const [opened, { open, close}] = useDisclosure(false);
 
   // Function to check if the entered d value is correct
   function checkDValue(value) {
-    
     if (parseInt(value) === dValue) {
-      setIsInputDCorrect(true);
+      setMessageState(prev => ({
+        ...prev,
+        isInputDCorrect: true,
+      }));
     } else {
       alert("Incorrect private key (d) value. Please try again.");
     }
@@ -36,7 +35,6 @@ function StageFourCard(props) {
 
   // Function to decrypt message
   function decryptMessage(encryptedMessage) {
-    
     let decryptedMessage = "";
     
     // Decrypt each character in the message
@@ -44,7 +42,10 @@ function StageFourCard(props) {
       return String.fromCharCode(modExp(char, dValue, nValue));
     });
 
-    setDecryptedMessage(decryptedMessage.join(""));
+    setMessageState(prev => ({
+      ...prev,
+      decryptedMessage: decryptedMessage.join(""),
+    }));
   }
 
   // Function to finish the game
@@ -77,7 +78,12 @@ function StageFourCard(props) {
                 placeholder="Enter number"
                 type="number"
                 value={inputD}
-                onChange={(event) => setInputD(event.currentTarget.value)}
+                onChange={(event) => 
+                  setMessageState(prev => ({
+                    ...prev,
+                    inputD: event.target.value,
+                  }))
+                }
               />
               <Button color="green" radius="md" size="sm" onClick={() => checkDValue(inputD)}>Submit</Button>
             </Flex>
@@ -113,9 +119,6 @@ function StageFourCard(props) {
 
 // Define PropTypes
 StageFourCard.propTypes = {
-  setIsInputDCorrect: PropTypes.func.isRequired,
-  setInputD: PropTypes.func.isRequired,
-  setDecryptedMessage: PropTypes.func.isRequired,
   stageFour: PropTypes.bool.isRequired,
   nValue: PropTypes.number.isRequired,
   phiValue: PropTypes.number.isRequired,
@@ -126,6 +129,7 @@ StageFourCard.propTypes = {
   encryptedMessage: PropTypes.arrayOf(PropTypes.number).isRequired,
   decryptedMessage: PropTypes.string.isRequired,
   onComplete: PropTypes.func.isRequired, 
+  setMessageState: PropTypes.func.isRequired,
 }    
 
 export default StageFourCard

@@ -4,23 +4,19 @@ import { IconBulb } from '@tabler/icons-react';
 import { modExp } from "./helper";
 
 function StageThreeCard(props) {
-
   const {
-    setStageThree,
-    setStageFour,
-    setMessage,
-    setEncryptedMessage,
     stageThree,
     nValue,
     phiValue,
     eValue,
     message,
-    encryptedMessage
+    encryptedMessage,
+    setGameState,
+    setMessageState,
   } = props;
 
   // Function to encrypt message
   function encryptMessage(input) {
-
     let encryptedMessage = [];
     
     // Encrypt each character in the message
@@ -29,14 +25,19 @@ function StageThreeCard(props) {
       return modExp(charCode, eValue, nValue);
     });
     
-    setEncryptedMessage(encryptedMessage);
+    setMessageState(prev => ({
+      ...prev,
+      encryptedMessage: encryptedMessage,
+    }));
   }
 
   // Function to load Stage 4
   function proceedStageFour() {
-
-    setStageThree(false);
-    setStageFour(true);
+    setGameState(prev => ({
+      ...prev,
+      stageThree: false,
+      stageFour: true,
+    }));
   }
     
   return (
@@ -60,7 +61,12 @@ function StageThreeCard(props) {
                 label="Enter message to encrypt:"
                 placeholder="Enter a message"
                 value={message}
-                onChange={(event) => setMessage(event.currentTarget.value)}
+                onChange={(event) => 
+                  setMessageState(prev => ({
+                    ...prev,
+                    message: event.target.value,
+                  }))
+                }
               />
               <Button color="green" radius="md" size="sm" onClick={() => encryptMessage(message)}>Encrypt</Button>
             </Flex>
@@ -79,16 +85,14 @@ function StageThreeCard(props) {
 
 // Define PropTypes
 StageThreeCard.propTypes = {
-  setStageThree: PropTypes.func.isRequired,
-  setStageFour: PropTypes.func.isRequired,
-  setMessage: PropTypes.func.isRequired,
-  setEncryptedMessage: PropTypes.func.isRequired,
   stageThree: PropTypes.bool.isRequired,
   nValue: PropTypes.number.isRequired,
   phiValue: PropTypes.number.isRequired,
   eValue: PropTypes.number.isRequired,
   message: PropTypes.string.isRequired,
   encryptedMessage: PropTypes.arrayOf(PropTypes.number).isRequired,
+  setGameState: PropTypes.func.isRequired,
+  setMessageState: PropTypes.func.isRequired,
 }    
 
 export default StageThreeCard

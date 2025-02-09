@@ -3,36 +3,37 @@ import { Card, Flex, Text, Button, Blockquote, Select } from "@mantine/core";
 import { IconBulb } from '@tabler/icons-react';
 
 function StageTwoCard(props) {
-
-  const {
-    setStageTwo,
-    setStageThree,
-    setEValue,
-    setDValue,
+  const { 
     stageTwo,
-    nValue,
-    phiValue,
-    eValue,
-    dValue,
-    validEs,
-    keyMap
+    nValue, 
+    phiValue, 
+    eValue, 
+    dValue, 
+    validEs, 
+    keyMap,
+    setGameState, 
+    setCalculatedValues 
   } = props;
 
   // Get public and private keys from selected e value
   function populateKeys(value) {
-
     const e = parseInt(value)
     const d = keyMap.get(e);
-    setEValue(e);
-    setDValue(d);
+    setCalculatedValues(prev => ({
+      ...prev,
+      eValue: e,
+      dValue: d,
+    }));
     console.log(`Public key (e): ${e}, Private key (d): ${d}`);
   }
 
   // Function to load Stage 3
   function proceedStageThree() {
-
-    setStageTwo(false);
-    setStageThree(true)
+    setGameState(prev => ({
+      ...prev,
+      stageTwo: false,
+      stageThree: true,
+    }));
   }
     
   return (
@@ -52,6 +53,7 @@ function StageTwoCard(props) {
             </Blockquote>
             <Flex direction="row" gap="sm">
               <Select
+                type="number"
                 label="Select Public key (e):"
                 placeholder="Select a number"
                 limit={10}
@@ -72,17 +74,15 @@ function StageTwoCard(props) {
 
 // Define PropTypes
 StageTwoCard.propTypes = {
-  setStageTwo: PropTypes.func.isRequired,
-  setStageThree: PropTypes.func.isRequired,
-  setEValue: PropTypes.func.isRequired,
-  setDValue: PropTypes.func.isRequired,
   stageTwo: PropTypes.bool.isRequired,
   nValue: PropTypes.number.isRequired,
   phiValue: PropTypes.number.isRequired,
   eValue: PropTypes.number.isRequired,
   dValue: PropTypes.number.isRequired,
   validEs: PropTypes.arrayOf(PropTypes.string).isRequired,
-  keyMap: PropTypes.objectOf(PropTypes.number).isRequired,
+  keyMap: PropTypes.instanceOf(Map).isRequired,
+  setGameState: PropTypes.func.isRequired,
+  setCalculatedValues: PropTypes.func.isRequired,
 }    
 
 export default StageTwoCard
